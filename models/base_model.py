@@ -14,28 +14,19 @@ class BaseModel:
             *args (any): Unused.
             **kwargs (dict): Key/value pairs of attributes.
         """
-        DATE_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
-        if not kwargs:
-            self.id = str(uuid4())
-            self.created_at = datetime.utcnow()
-            self.updated_at = datetime.utcnow()
-            models.storage.new(self)
-        else:
-            for key, value in kwargs.items():
-                if key in ("updated_at", "created_at"):
-                    self.__dict__[key] = datetime.strptime(
-                        value, DATE_TIME_FORMAT)
-                elif key[0] == "id":
-                    self.__dict__[key] = str(value)
+        tform = "%Y-%m-%dT%H:%M:%S.%f"
+        self.id = str(uuid4())
+        self.created_at = datetime.today()
+        self.updated_at = datetime.today()
+        if len(kwargs) != 0:
+            for k, v in kwargs.items():
+                if k == "created_at" or k == "updated_at":
+                    self.__dict__[k] = datetime.strptime(v, tform)
                 else:
-                    self.__dict__[key] = value
+                    self.__dict__[k] = v
+        else:
+            models.storage.new(self)
 
-    def __str__(self):
-        """
-        Returns string representation of the class
-        """
-        return "[{}] ({}) {}".format(self.__class__.__name__,
-                                     self.id, self.__dict__)
     def save(self):
         """Update updated_at with the current datetime."""
         self.updated_at = datetime.today()
@@ -55,5 +46,4 @@ class BaseModel:
     def __str__(self):
         """Return the print/str representation of the BaseModel instance."""
         clname = self.__class__.__name__
-
         return "[{}] ({}) {}".format(clname, self.id, self.__dict__)
